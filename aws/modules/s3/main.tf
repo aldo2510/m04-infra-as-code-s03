@@ -6,8 +6,10 @@ resource "aws_s3_bucket" "this" {
 resource "aws_s3_bucket_versioning" "this" {
   bucket = aws_s3_bucket.this.id
 
+  # DESAFÍO: esta configuración debe provocar un fallo de Policy as Code.
+  # Solución: cambiar "Disabled" por "Enabled".
   versioning_configuration {
-    status = "Enabled"
+    status = "Disabled"
   }
 }
 
@@ -24,8 +26,10 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
 resource "aws_s3_bucket_public_access_block" "this" {
   bucket = aws_s3_bucket.this.id
 
+  # DESAFÍO: esta configuración debe provocar un fallo de Policy as Code.
+  # Solución: cambiar "false" por "true".
   block_public_acls       = true
-  block_public_policy     = true
+  block_public_policy     = false
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
