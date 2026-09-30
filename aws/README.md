@@ -13,7 +13,8 @@ Al finalizar el laboratorio podrás:
 3. Usar variables, outputs y etiquetas comunes.
 4. Generar un plan Terraform y convertirlo a JSON.
 5. Validar el plan mediante políticas Rego con Conftest.
-6. Corregir una configuración que incumple una política antes de aplicar la infraestructura.
+6. Identificar incumplimientos de Policy as Code.
+7. Corregir Terraform y volver a validar antes de aplicar la infraestructura.
 
 ## Recursos
 
@@ -148,37 +149,101 @@ Desde `aws/environments/dev`:
 conftest test plan.json -p ../../policy
 ```
 
-Las políticas deben verificar, entre otros aspectos:
+**En el estado inicial del laboratorio, Conftest debe fallar intencionalmente.** Esto es parte del ejercicio.
 
-- Tags obligatorios.
-- Bloqueo de acceso público en S3.
-- Versionado de S3.
-- Cifrado de S3.
+Los fallos esperados corresponden a:
 
-### 7. Aplicar
+- S3 versioning deshabilitado.
+- Bloqueo de políticas públicas de S3 deshabilitado.
 
-Solo después de que las políticas pasen:
+El objetivo es identificar la regla incumplida y corregir el código Terraform.
+
+### 7. Corregir Terraform
+
+Abre:
+
+```text
+aws/modules/s3/main.tf
+```
+
+Corrige las configuraciones señaladas por Conftest.
+
+Después de modificar Terraform, vuelve a ejecutar:
+
+```bash
+terraform plan -out=plan.tfplan
+terraform show -json plan.tfplan > plan.json
+conftest test plan.json -p ../../policy
+```
+
+El resultado esperado es:
+
+```text
+0 failures
+```
+
+### 8. Aplicar
+
+**Solo después de que las políticas pasen:**
 
 ```bash
 terraform apply plan.tfplan
 ```
 
-### 8. Destruir
+### 9. Destruir
+
+Al finalizar el laboratorio:
 
 ```bash
 terraform destroy
 ```
 
+## Solución del ejercicio
+
+> Esta sección puede utilizarse como guía del instructor o como solución después de que el estudiante haya intentado resolver el ejercicio.
+
+En `aws/modules/s3/main.tf`, la configuración correcta debe ser:
+
+```hcl
+resource "aws_s3_bucket_versioning" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+```
+
+Después de aplicar estos cambios:
+
+```bash
+terraform plan -out=plan.tfplan
+terraform show -json plan.tfplan > plan.json
+conftest test plan.json -p ../../policy
+```
+
+Conftest debe finalizar sin incumplimientos de política.
+
 ## Dinámica sugerida para clase
 
-1. Ejecutar `terraform plan`.
-2. Convertir el plan a JSON.
-3. Ejecutar Conftest y observar que las políticas pasan.
-4. Romper intencionalmente una configuración de S3, por ejemplo deshabilitando una protección.
-5. Volver a generar el plan.
-6. Ejecutar Conftest y observar el fallo.
-7. Corregir Terraform.
-8. Volver a ejecutar las políticas.
+1. Revisar la infraestructura Terraform.
+2. Ejecutar `terraform plan`.
+3. Convertir el plan a JSON.
+4. Ejecutar Conftest y observar los incumplimientos intencionales.
+5. Identificar qué regla Rego está fallando.
+6. Corregir Terraform.
+7. Volver a generar el plan.
+8. Ejecutar nuevamente Conftest.
 9. Aplicar únicamente cuando el plan cumpla las políticas.
+10. Destruir la infraestructura al finalizar.
 
 > Nota: el laboratorio está separado de la implementación Azure existente del repositorio para que ambos ejercicios puedan ejecutarse de manera independiente.
