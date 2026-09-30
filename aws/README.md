@@ -30,7 +30,27 @@ El ejercicio usa módulos locales para encapsular cada recurso.
 - Terraform instalado.
 - Credenciales AWS configuradas mediante el mecanismo estándar de AWS CLI/SDK.
 - Una región AWS disponible, por ejemplo `us-east-1`.
-- Conftest instalado.
+- Conftest `v0.70.1` instalado.
+
+### Instalación de Conftest
+
+Para Linux, instala la versión `0.70.1`:
+
+```bash
+CONFTEST_VERSION="0.70.1"
+ARCH="x86_64"
+SYSTEM="Linux"
+
+wget "https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_${SYSTEM}_${ARCH}.tar.gz"
+
+tar xzf "conftest_${CONFTEST_VERSION}_${SYSTEM}_${ARCH}.tar.gz"
+
+sudo mv conftest /usr/local/bin/
+
+conftest --version
+```
+
+La instalación debe finalizar mostrando la versión de Conftest instalada.
 
 El provider AWS utilizado es `hashicorp/aws`. La versión se fija a una versión estable para que el laboratorio sea reproducible.
 
