@@ -34,6 +34,25 @@ El ejercicio usa módulos locales para encapsular cada recurso.
 
 El provider AWS utilizado es `hashicorp/aws`. La versión se fija a una versión estable para que el laboratorio sea reproducible.
 
+## Identificación del alumno y prevención de colisiones
+
+Cada alumno debe definir únicamente su `student_id` en `terraform.tfvars`.
+
+El laboratorio obtiene automáticamente el ID de la cuenta AWS mediante `aws_caller_identity`. Con esto:
+
+- S3 usa un nombre derivado de `student_id + account_id`.
+- DynamoDB usa un nombre derivado de `student_id + account_id`.
+- CloudWatch Logs usa un nombre derivado de `student_id`.
+
+Ejemplo:
+
+```hcl
+student_id = "aldo"
+aws_region = "us-east-1"
+```
+
+Si varios alumnos utilizan la misma cuenta AWS, cada uno debe utilizar un `student_id` diferente.
+
 ## Estructura
 
 ```text
