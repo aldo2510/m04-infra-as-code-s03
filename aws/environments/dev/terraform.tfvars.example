@@ -1,0 +1,19 @@
+aws_region = "us-east-1"
+
+# S3 bucket names are globally unique.
+bucket_name = "iac-s03-REPLACE-ME"
+
+table_name = "iac-s03-dev"
+
+dynamodb_hash_key = "id"
+
+log_group_name = "/iac-lab/dev/application"
+
+log_retention_in_days = 14
+
+tags = {
+  Environment = "dev"
+  ManagedBy   = "terraform"
+  Owner       = "student"
+  CostCenter  = "training"
+}
